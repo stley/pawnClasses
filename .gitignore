@@ -1,0 +1,7 @@
+/components
+*.exe
+*.pdb
+log.txt
+omp_minidump.dmp
+config.json
+/plugins
