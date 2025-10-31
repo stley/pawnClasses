@@ -40,9 +40,6 @@ CLASS_PUBLIC:Constructor(playerid){
     return 1;
 }
 
-static classInternal(){
-
-}
 /*
 amxScriptScheme
     Amx:scriptPointer, //AMX instance pointer

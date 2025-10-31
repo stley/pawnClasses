@@ -1,5 +1,6 @@
 #define FILTERSCRIPT
 #include <open.mp>
+#include <sscanf2>
 #include <PawnPlus>
 
 forward
@@ -226,16 +227,24 @@ public pC_classRequire(const className[], Var:locallist_pointer){
     public rcon_cmd_%0(%1)
 
 public OnRconCommand(cmd[]){
+    new args[150];
+    printf("command executed: %s", cmd);
+    print("separating");
+    strcopy(args, cmd);
     new input[32];
     for(new i; i < strlen(cmd); i++){
         if(i == sizeof(input)) break;
         if(cmd[i] == ' ') break;
         input[i] = cmd[i];
+        strdel(args, 0, i);
+        
     }
     new funcstr[61];
     format(funcstr, sizeof(funcstr), "rcon_cmd_%s", input);
+    printf("%s",funcstr);
+    printf("%s",args);
     if(funcidx(funcstr))
-        return CallLocalFunction(funcstr, "");
+        return CallLocalFunction(funcstr, "s", args);
     return 0;
 }
 
@@ -245,9 +254,23 @@ PCCMD:amxlist(){
     for(new it; it < pool_size(amxScriptPool); it++){
         if(pool_has(amxScriptPool, it)){
             new Map:amxMap = Map:pool_get(amxScriptPool, it);
-            print_s( str_format("AMX Instance with pointer %d | Number of registered classes: %d", _:scriptPointer, list_size(List:map_get(amxMap, exportedClasses))) );
+            print_s( str_format("AMX Instance with pointer %d | Number of registered classes: %d", _:map_get(amxMap, scriptPointer), list_size(List:map_get(amxMap, exportedClasses))) );
         }
     }
     print("\n");
     return 1;
+}
+PCCMD:amxcall_native(params[]){
+    new
+        Amx:pointer,
+        funcname[61],
+        form[5],
+        args[64]
+    ;
+    if (sscanf(params, "dsss", _:pointer, funcname, form, args)) return printf("Usage: 'amxcall_native [native-name] [arguments]");
+    amx_call_native(pointer, funcname, form, args);
+    return 1;
+}
+PCCMD:amxcall_public(params[]){
+
 }
