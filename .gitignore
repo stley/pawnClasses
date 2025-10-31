@@ -5,3 +5,4 @@ log.txt
 omp_minidump.dmp
 config.json
 /plugins
+*.amx

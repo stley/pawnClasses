@@ -7,27 +7,49 @@
 #define _pawnclasses_included
 #include <pp-hooks>
 
-new Amx:pcPointer;
+new Amx:pcPointer; //pawnClasses.amx pointer
 
+new List:requiredPublics;
 
-stock pcRegisterClasses(){
-    return 1;
+pcInit(){
+    pcPointer = Amx:CallRemoteFunction("amxPingMe", "");
+    if(pcPointer){
+        amx_call_public(pcPointer, "amxRegister", "d", _:amx_this());
+        requiredPublics = list_new();
+    }
 }
 
-hook ret OnFilterScriptInit(){
-    pcPointer = Amx:CallRemoteFunction("amxPingMe", "");
-    new name[32];
-    amx_name(name);
-    CallRemoteFunction("amxRegister", "ds", amx_this(), name);
-    pcRegisterClasses();
+pcExit(){
+    if(pcPointer){
+        amx_call_public(pcPointer, "amxUnregister", "d", _:amx_this());
+        list_delete(requiredPublics);
+    }
+}
+
+#if defined FILTERSCRIPT
+hook ret OnFilterScriptInit()
+#else
+hook ret OnGameModeInit()
+#endif
+{
+    pcInit();   
+    return 0;
+}
+
+#if defined FILTERSCRIPT
+hook ret OnFilterScriptExit(&ret)
+#else
+hook ret OnGameModeExit(&ret)
+#endif
+{
+    pcExit();   
     return 0;
 }
 
 
-//Only in cases where the class is not registered from this script.
-stock pcResolve(const function[], const fmt[], ...){
-    if(pawn_native_exists(function[])){
-        return CallLocalFunction(function, fmt, ...);
-    }
-    return 1;
+
+
+stock classRequire(const className[]){
+    if(pcPointer)
+        amx_call_public(pcPointer, "pC_classRequire", "sd", className, _:amx_var(requiredPublics));
 }
