@@ -271,6 +271,3 @@ PCCMD:amxcall_native(params[]){
     amx_call_native(pointer, funcname, form, args);
     return 1;
 }
-PCCMD:amxcall_public(params[]){
-
-}
